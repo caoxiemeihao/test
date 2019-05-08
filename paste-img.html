@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Paste image</title>
+    <script src="./utils/image-reader.js" charset="utf-8"></script>
+  </head>
+  <body>
+
+    <img src="" alt="" />
+
+  <script>
+    /**
+     * 参考链接 [https://segmentfault.com/a/1190000004288686]
+     * 在文件夹中拷贝的图片和文件，无法粘贴的，ev.clipboardData.items.length 会等于 0
+     * 只支持用截图工具截取的图片 [系统截图，如QQ截图，微信截图]
+     */
+    document.onpaste = ev => {
+      console.log(ev)
+
+      let items = ev.clipboardData.items
+        , result = {
+          data: null,
+          type: ''
+        }
+
+      Array.prototype.forEach.call(items, item => {
+        result.type = item.type
+        if (item.kind === 'string') {
+          item.getAsString(str => {
+            result.data = str
+            resultHandle(result) // test-paste-text -> {data: "test-paste-text", type: "text/plain"}
+          })
+        } else if (item.kind === 'file') {
+          result.data = item.getAsFile()
+          resultHandle(result)  // 截图 -> {data: File(175461), type: "image/png"}
+        }
+      })
+    }
+
+    function resultHandle(result) {
+      console.log(result)
+      if (result.type.includes('image')) {
+        imageReader(result.data)
+        .then(res => document.images[0].src = res.FileArr[0].base64)
+      }
+    }
+
+  </script>
+  </body>
+</html>
