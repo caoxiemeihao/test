@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <span id="play">play</span>
+
+  <script>
+    // let resourceURL = 'https://chat.cjdropshipping.com/javascripts/bell.mp3';
+    let resourceURL = './bell.mp3';
+    let request = new XMLHttpRequest();
+    let audioCtx = new AudioContext();
+    let audioBuffer = null;
+    let audioSource = audioCtx.createBufferSource();
+
+    request.open("GET", resourceURL, true);
+    request.responseType = "arraybuffer";
+    request.onload = function() {
+      audioCtx.decodeAudioData(request.response, function(buffer) {
+        console.log(audioBuffer = buffer);
+      }, function(e) {
+        console.log(e);
+      });
+    };
+    request.send();
+
+    document.getElementById('play').onclick = ev => {
+      if (!audioBuffer) return alert('没有音频数据');
+      if (audioCtx.state !== 'suspended') {
+        console.log('重启audioCtx');
+        audioCtx.resume();
+      }
+      console.log('播放');
+
+      audioSource.buffer = audioBuffer;
+      audioSource.connect(audioCtx.destination);
+      audioSource.start(0);
+    };
+  </script>
+</body>
+</html>
